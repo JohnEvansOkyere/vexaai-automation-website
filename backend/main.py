@@ -3,16 +3,20 @@ VexaAI Workflow Sales Backend
 FastAPI application for handling payments and data management
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
-from datetime import datetime
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, EmailStr, validator
+from typing import Optional, List, Dict, Any
+from datetime import datetime, timedelta
 import os
 import httpx
 from dotenv import load_dotenv
 import secrets
+import jwt
+from passlib.context import CryptContext
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -35,10 +39,63 @@ app.add_middleware(
 
 # Environment variables
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "sk_test_your_secret_key")
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "johnevansokyere@gmail.com")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key_change_this_in_production")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", "24"))
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Security
+security = HTTPBearer()
+
+# Helper functions for password and JWT
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt"""
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a password against a hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_access_token(data: dict) -> str:
+    """Create JWT access token"""
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRY_HOURS)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
+    return encoded_jwt
+
+def decode_access_token(token: str) -> dict:
+    """Decode JWT access token"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get current authenticated user from JWT token"""
+    token = credentials.credentials
+    payload = decode_access_token(token)
+    user_id = payload.get("user_id")
+    email = payload.get("email")
+
+    if not user_id or not email:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
+    # In production, fetch user from database
+    return {
+        "user_id": user_id,
+        "email": email,
+        "first_name": payload.get("first_name"),
+        "last_name": payload.get("last_name")
+    }
 
 # Pydantic models
 class WorkflowItem(BaseModel):
@@ -72,6 +129,31 @@ class AdminLogin(BaseModel):
     email: EmailStr
     password: str
 
+# Authentication models
+class UserRegister(BaseModel):
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    phone: Optional[str] = None
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class CustomRequestSubmit(BaseModel):
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    company: Optional[str] = None
+    workflow_title: str
+    description: str
+    use_case: Optional[str] = None
+    budget_range: Optional[str] = None
+    timeline: Optional[str] = None
+    preferred_platforms: Optional[List[str]] = []
+    integration_needs: Optional[str] = None
+
 class DashboardStats(BaseModel):
     total_revenue: float
     total_sales: int
@@ -79,10 +161,12 @@ class DashboardStats(BaseModel):
     all_access_sales: int
     recent_sales: List[dict]
 
-# In-memory storage (replace with Supabase in production)
+# In-memory storage (replace with PostgreSQL/Neon in production)
 # This is just for demonstration
 sales_db = []
 customers_db = []
+users_db = []  # Store users
+custom_requests_db = []  # Store custom workflow requests
 
 # Workflows list
 WORKFLOWS = [
@@ -407,6 +491,262 @@ async def download_workflow(workflow_id: int, email: str):
         "workflow": workflow_json,
         "download_url": f"/downloads/{workflow['name'].replace(' ', '_')}.json"
     }
+
+
+# ============================================
+# AUTHENTICATION ROUTES
+# ============================================
+
+@app.post("/api/auth/register")
+async def register_user(user_data: UserRegister):
+    """Register a new user"""
+    try:
+        # Check if user already exists
+        existing_user = next((u for u in users_db if u["email"] == user_data.email), None)
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        # Validate password length
+        if len(user_data.password) < 8:
+            raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+        # Create new user
+        user_id = str(uuid.uuid4())
+        hashed_pwd = hash_password(user_data.password)
+
+        new_user = {
+            "id": user_id,
+            "email": user_data.email,
+            "password_hash": hashed_pwd,
+            "first_name": user_data.first_name,
+            "last_name": user_data.last_name,
+            "phone": user_data.phone,
+            "is_verified": False,
+            "is_active": True,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+
+        users_db.append(new_user)
+
+        return {
+            "success": True,
+            "message": "User registered successfully",
+            "user": {
+                "id": user_id,
+                "email": user_data.email,
+                "first_name": user_data.first_name,
+                "last_name": user_data.last_name
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/auth/login")
+async def login_user(credentials: UserLogin):
+    """Login user and return JWT token"""
+    try:
+        # Find user by email
+        user = next((u for u in users_db if u["email"] == credentials.email), None)
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        # Verify password
+        if not verify_password(credentials.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+        # Check if user is active
+        if not user.get("is_active", True):
+            raise HTTPException(status_code=403, detail="Account is inactive")
+
+        # Create JWT token
+        token_data = {
+            "user_id": user["id"],
+            "email": user["email"],
+            "first_name": user.get("first_name"),
+            "last_name": user.get("last_name")
+        }
+        token = create_access_token(token_data)
+
+        # Update last login (in production, update in database)
+        user["last_login"] = datetime.utcnow().isoformat()
+
+        return {
+            "success": True,
+            "token": token,
+            "user": {
+                "id": user["id"],
+                "email": user["email"],
+                "first_name": user.get("first_name"),
+                "last_name": user.get("last_name"),
+                "phone": user.get("phone")
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/auth/me")
+async def get_current_user_info(current_user: dict = Depends(get_current_user)):
+    """Get current authenticated user information"""
+    try:
+        # Find full user details
+        user = next((u for u in users_db if u["id"] == current_user["user_id"]), None)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {
+            "success": True,
+            "user": {
+                "id": user["id"],
+                "email": user["email"],
+                "first_name": user.get("first_name"),
+                "last_name": user.get("last_name"),
+                "phone": user.get("phone"),
+                "is_verified": user.get("is_verified", False),
+                "created_at": user.get("created_at")
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/auth/logout")
+async def logout_user(current_user: dict = Depends(get_current_user)):
+    """Logout user (in production, invalidate token in database)"""
+    return {
+        "success": True,
+        "message": "Logged out successfully"
+    }
+
+
+# ============================================
+# CUSTOM WORKFLOW REQUEST ROUTES
+# ============================================
+
+@app.post("/api/requests/submit")
+async def submit_custom_request(request_data: CustomRequestSubmit):
+    """Submit a custom workflow request"""
+    try:
+        # Create new request
+        request_id = str(uuid.uuid4())
+
+        new_request = {
+            "id": request_id,
+            "user_id": None,  # Will be set if user is authenticated
+            "name": request_data.name,
+            "email": request_data.email,
+            "phone": request_data.phone,
+            "company": request_data.company,
+            "workflow_title": request_data.workflow_title,
+            "description": request_data.description,
+            "use_case": request_data.use_case,
+            "budget_range": request_data.budget_range,
+            "timeline": request_data.timeline,
+            "preferred_platforms": request_data.preferred_platforms,
+            "integration_needs": request_data.integration_needs,
+            "status": "pending",
+            "priority": "normal",
+            "response_email_sent": False,
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat()
+        }
+
+        custom_requests_db.append(new_request)
+
+        # TODO: Send email notification to admin
+        # TODO: Send confirmation email to user
+
+        return {
+            "success": True,
+            "message": "Custom workflow request submitted successfully",
+            "request_id": request_id,
+            "request": {
+                "id": request_id,
+                "workflow_title": request_data.workflow_title,
+                "status": "pending",
+                "created_at": new_request["created_at"]
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/admin/requests")
+async def get_all_requests():
+    """Get all custom workflow requests (admin only)"""
+    # TODO: Add admin authentication
+    try:
+        # Sort by priority and date
+        sorted_requests = sorted(
+            custom_requests_db,
+            key=lambda x: (
+                0 if x["priority"] == "urgent" else
+                1 if x["priority"] == "high" else
+                2 if x["priority"] == "normal" else 3,
+                x["created_at"]
+            ),
+            reverse=True
+        )
+
+        return {
+            "success": True,
+            "total": len(sorted_requests),
+            "requests": sorted_requests
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.patch("/api/admin/requests/{request_id}")
+async def update_request_status(request_id: str, status: str, admin_notes: Optional[str] = None):
+    """Update custom request status (admin only)"""
+    # TODO: Add admin authentication
+    try:
+        # Find request
+        request = next((r for r in custom_requests_db if r["id"] == request_id), None)
+
+        if not request:
+            raise HTTPException(status_code=404, detail="Request not found")
+
+        # Validate status
+        valid_statuses = ["pending", "reviewing", "quoted", "in_progress", "completed", "rejected"]
+        if status not in valid_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}")
+
+        # Update request
+        request["status"] = status
+        request["updated_at"] = datetime.utcnow().isoformat()
+
+        if admin_notes:
+            request["admin_notes"] = admin_notes
+
+        # TODO: Send status update email to user
+
+        return {
+            "success": True,
+            "message": "Request status updated successfully",
+            "request": request
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

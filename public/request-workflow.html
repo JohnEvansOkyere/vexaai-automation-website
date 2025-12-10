@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Custom Workflow - VexaAI</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Environment Config -->
+    <script src="js/env-config.js"></script>
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-wrapper:hover {
+            border-color: #667eea;
+        }
+
+        .checkbox-wrapper input:checked + label {
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-blue-50 min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white font-bold text-2xl">
+                        V
+                    </div>
+                    <span class="text-2xl font-black gradient-text">VexaAI</span>
+                </div>
+
+                <!-- Back to Home -->
+                <a href="index.html" class="px-6 py-3 text-gray-700 hover:text-purple-600 font-semibold transition">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="pt-32 pb-20 px-4">
+        <div class="max-w-4xl mx-auto">
+
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-black gradient-text mb-6">
+                    Request Custom Workflow
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Tell us about your automation needs and we'll build a tailored solution just for you. Get a personalized quote within 24-48 hours.
+                </p>
+            </div>
+
+            <!-- Success Message (Hidden by default) -->
+            <div id="successMessage" class="glass-card rounded-3xl shadow-2xl p-8 mb-8 hidden">
+                <div class="text-center">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Request Submitted Successfully!</h2>
+                    <p class="text-gray-600 mb-6">
+                        Thank you for your interest! We've received your custom workflow request and will review it shortly.
+                        You'll receive an email confirmation and a detailed quote within 24-48 hours.
+                    </p>
+                    <button onclick="window.location.href='index.html'" class="gradient-bg text-white px-8 py-3 rounded-xl font-semibold hover:shadow-xl transition">
+                        Back to Home
+                    </button>
+                </div>
+            </div>
+
+            <!-- Request Form -->
+            <form id="requestForm" onsubmit="handleSubmit(event)" class="glass-card rounded-3xl shadow-2xl p-8 md:p-12">
+
+                <!-- Contact Information -->
+                <div class="mb-10">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3">1</span>
+                        Contact Information
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+                            <input
+                                type="text"
+                                id="name"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                                placeholder="John Doe"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
+                            <input
+                                type="email"
+                                id="email"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                                placeholder="john@example.com"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                                placeholder="+233 54 495 4643"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Company/Organization</label>
+                            <input
+                                type="text"
+                                id="company"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                                placeholder="Acme Inc."
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow Details -->
+                <div class="mb-10">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3">2</span>
+                        Workflow Details
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Workflow Title *</label>
+                            <input
+                                type="text"
+                                id="workflowTitle"
+                                required
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                                placeholder="E.g., Customer Onboarding Automation"
+                            >
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Detailed Description *</label>
+                            <textarea
+                                id="description"
+                                required
+                                rows="6"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition resize-none"
+                                placeholder="Describe what you want to automate, what processes are involved, and any specific requirements..."
+                            ></textarea>
+                            <p class="text-sm text-gray-500 mt-1">Be as detailed as possible to help us understand your needs</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Use Case / Business Goal</label>
+                            <textarea
+                                id="useCase"
+                                rows="3"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition resize-none"
+                                placeholder="What problem are you trying to solve? What's the expected outcome?"
+                            ></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Specifications -->
+                <div class="mb-10">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-lg mr-3">3</span>
+                        Project Specifications
+                    </h2>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Budget Range</label>
+                            <select
+                                id="budgetRange"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                            >
+                                <option value="">Select budget range</option>
+                                <option value="Under GHS 500">Under GHS 500</option>
+                                <option value="GHS 500 - 1,000">GHS 500 - 1,000</option>
+                                <option value="GHS 1,000 - 2,500">GHS 1,000 - 2,500</option>
+                                <option value="GHS 2,500 - 5,000">GHS 2,500 - 5,000</option>
+                                <option value="Above GHS 5,000">Above GHS 5,000</option>
+                                <option value="Open to discuss">Open to discuss</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Timeline</label>
+                            <select
+                                id="timeline"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition"
+                            >
+                                <option value="">Select timeline</option>
+                                <option value="ASAP">ASAP (Within 1 week)</option>
+                                <option value="1-2 weeks">1-2 weeks</option>
+                                <option value="2-4 weeks">2-4 weeks</option>
+                                <option value="1-2 months">1-2 months</option>
+                                <option value="Flexible">Flexible</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Preferred Automation Platforms</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="n8n" class="mr-2">
+                                <span>n8n</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="Zapier" class="mr-2">
+                                <span>Zapier</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="Make" class="mr-2">
+                                <span>Make (Integromat)</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="Power Automate" class="mr-2">
+                                <span>Power Automate</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="Custom API" class="mr-2">
+                                <span>Custom API</span>
+                            </label>
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="platforms" value="No preference" class="mr-2">
+                                <span>No preference</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Integration Requirements</label>
+                        <textarea
+                            id="integrationNeeds"
+                            rows="3"
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-500 transition resize-none"
+                            placeholder="List any specific tools, APIs, or services that need to be integrated (e.g., Salesforce, Slack, Google Sheets, etc.)"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <p class="text-sm text-gray-600">
+                        * Required fields
+                    </p>
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="gradient-bg text-white px-10 py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all hover:scale-105 flex items-center"
+                    >
+                        <span id="submitText">Submit Request</span>
+                        <svg id="submitSpinner" class="hidden animate-spin ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Why Choose Us -->
+            <div class="mt-16 grid md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 gradient-bg rounded-2xl flex items-center justify-center text-white text-2xl">
+                        ⚡
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Fast Turnaround</h3>
+                    <p class="text-gray-600 text-sm">Get your custom workflow delivered in days, not weeks</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 gradient-bg rounded-2xl flex items-center justify-center text-white text-2xl">
+                        💎
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Premium Quality</h3>
+                    <p class="text-gray-600 text-sm">Built by automation experts with years of experience</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-4 gradient-bg rounded-2xl flex items-center justify-center text-white text-2xl">
+                        🔒
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2">Ongoing Support</h3>
+                    <p class="text-gray-600 text-sm">30-day support and updates included with every project</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.ENV?.API_URL || 'http://localhost:8000';
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const company = document.getElementById('company').value;
+            const workflowTitle = document.getElementById('workflowTitle').value;
+            const description = document.getElementById('description').value;
+            const useCase = document.getElementById('useCase').value;
+            const budgetRange = document.getElementById('budgetRange').value;
+            const timeline = document.getElementById('timeline').value;
+            const integrationNeeds = document.getElementById('integrationNeeds').value;
+
+            // Get selected platforms
+            const platformCheckboxes = document.querySelectorAll('input[name="platforms"]:checked');
+            const preferredPlatforms = Array.from(platformCheckboxes).map(cb => cb.value);
+
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+
+            submitBtn.disabled = true;
+            submitText.textContent = 'Submitting...';
+            submitSpinner.classList.remove('hidden');
+
+            try {
+                // Get user token if logged in
+                const token = localStorage.getItem('auth_token');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${API_URL}/api/requests/submit`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        company,
+                        workflow_title: workflowTitle,
+                        description,
+                        use_case: useCase,
+                        budget_range: budgetRange,
+                        timeline,
+                        preferred_platforms: preferredPlatforms,
+                        integration_needs: integrationNeeds
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Hide form, show success message
+                    document.getElementById('requestForm').classList.add('hidden');
+                    document.getElementById('successMessage').classList.remove('hidden');
+
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('❌ ' + (data.detail || 'Failed to submit request. Please try again.'));
+
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitText.textContent = 'Submit Request';
+                    submitSpinner.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Request submission error:', error);
+                alert('❌ Network error. Please check your connection and try again.');
+
+                // Reset button
+                submitBtn.disabled = false;
+                submitText.textContent = 'Submit Request';
+                submitSpinner.classList.add('hidden');
+            }
+        }
+
+        // Pre-fill email if user is logged in
+        window.addEventListener('load', () => {
+            const user = localStorage.getItem('user');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    if (userData.email) {
+                        document.getElementById('email').value = userData.email;
+                    }
+                    if (userData.first_name && userData.last_name) {
+                        document.getElementById('name').value = `${userData.first_name} ${userData.last_name}`;
+                    }
+                    if (userData.phone) {
+                        document.getElementById('phone').value = userData.phone;
+                    }
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

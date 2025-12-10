@@ -1,6 +1,6 @@
 # VexaAI - Premium n8n Workflows Sales Platform
 
-A stunning, modern, and fully functional e-commerce website for selling premium n8n automation workflows. Built with pure HTML, Tailwind CSS, vanilla JavaScript, FastAPI backend, and Supabase database.
+A stunning, modern, and fully functional e-commerce website for selling premium n8n automation workflows. Built with pure HTML, Tailwind CSS, vanilla JavaScript, FastAPI backend, and Neon PostgreSQL database.
 
 ## 🚀 Features
 
@@ -8,20 +8,23 @@ A stunning, modern, and fully functional e-commerce website for selling premium 
 - ✨ **Beautiful Modern Design**: Glassmorphism cards, smooth animations, gradient backgrounds
 - 📱 **Fully Responsive**: Mobile-first design that looks great on all devices
 - 💳 **Paystack Integration**: Support for Mobile Money (MTN, Vodafone, AirtelTigo) and Cards (Visa/Mastercard)
+- 🔐 **User Authentication**: JWT-based authentication with sign up/login system
 - 🎯 **Two Purchase Options**:
   - Single Workflow Access (GHS 149)
   - All Access Pass (GHS 799) - Most Popular
+- 📝 **Custom Workflow Requests**: Users can request tailored automation solutions
 - ✅ **Success Page**: Automatic redirect with download links and access information
-- 🎨 **Dark Mode Friendly**: Default light mode with beautiful color schemes
 - 🔍 **Searchable Workflow Modal**: Easy workflow selection with search functionality
 - 📊 **Social Proof**: Testimonials, trust indicators, and customer avatars
 - ❓ **FAQ Section**: Accordion-style frequently asked questions
 
 ### Backend (FastAPI)
-- 🔐 **Secure Payment Processing**: Paystack integration with webhook support
+- 🔐 **User Authentication**: JWT tokens, password hashing with bcrypt
+- 💳 **Secure Payment Processing**: Paystack integration with webhook support
 - 📊 **RESTful API**: Clean, documented API endpoints
-- 💾 **Database Integration**: Supabase for persistent data storage
+- 💾 **Database Ready**: Schema ready for Neon PostgreSQL (currently in-memory)
 - 🔑 **Admin Authentication**: Secure admin dashboard access
+- 📝 **Custom Request System**: Handle and track custom workflow requests
 - 📈 **Analytics & Reporting**: Sales tracking and customer insights
 
 ### Admin Dashboard
@@ -29,32 +32,54 @@ A stunning, modern, and fully functional e-commerce website for selling premium 
 - 📈 **Beautiful Charts**: Revenue trends and sales distribution (Chart.js)
 - 👥 **Customer Management**: View and manage customer data
 - 🛒 **Sales Tracking**: Monitor all transactions and payment details
+- 📝 **Custom Requests**: View and manage custom workflow requests
 - 🔧 **Workflow Management**: Add, edit, and track workflow performance
-- ⚙️ **Settings Panel**: Configure Paystack, Supabase, Notion, and pricing
+- ⚙️ **Settings Panel**: Configure Paystack, Neon, Notion, and pricing
 - 🎨 **Modern UI**: Gradient sidebar, glassmorphism cards, responsive design
 
-### Database (Supabase)
-- 📦 **Complete Schema**: Customers, sales, workflows, downloads, admin users
+### Database (Neon PostgreSQL)
+- 📦 **Complete Schema**: Users, customers, sales, workflows, custom_requests
 - 🔒 **Row Level Security**: Secure data access policies
 - 🔄 **Automated Triggers**: Auto-update timestamps
-- 📊 **Useful Views**: Dashboard stats, popular workflows
-- 🎯 **Stored Functions**: Simplified sale recording and processing
+- 📊 **Useful Views**: Dashboard stats, popular workflows, request overview
+- 🎯 **Stored Functions**: User stats, session cleanup, sale recording
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: HTML5, Tailwind CSS (CDN), Vanilla JavaScript
 - **Backend**: Python 3.9+, FastAPI
-- **Database**: Supabase (PostgreSQL)
+- **Database**: Neon PostgreSQL (serverless)
+- **Authentication**: JWT tokens, bcrypt password hashing
 - **Payment**: Paystack (Mobile Money + Card)
 - **Charts**: Chart.js
-- **Hosting**: Can be deployed to Vercel, Netlify, or any static host
+- **Hosting**: Can be deployed to Vercel/Netlify (frontend), Railway/Render (backend)
 
 ## 📋 Prerequisites
 
-- Python 3.9 or higher
-- Supabase account (free tier works)
+- Python 3.9 or higher (3.13 recommended)
+- Neon database account (free tier works)
 - Paystack account (for payment processing)
 - Node.js (optional, for local development server)
+
+## 🆕 New Features (Latest Update)
+
+### User Authentication System
+- **Sign Up/Login**: Users must create an account before purchasing
+- **JWT Tokens**: Secure session management
+- **Password Security**: Bcrypt hashing for user passwords
+- **Protected Routes**: Purchase functionality requires authentication
+- **Session Persistence**: Auto-login on return visits
+
+### Custom Workflow Request System
+- **Request Form**: Users can request custom automation solutions
+- **Detailed Submissions**: Capture requirements, budget, timeline, platforms
+- **Admin Dashboard**: View and manage all custom requests
+- **Status Tracking**: Track request status (pending, reviewing, quoted, completed)
+- **Priority Management**: Set urgency levels for requests
+
+### Pages Added
+1. **[auth.html](public/auth.html)** - Sign up/login page with tabbed interface
+2. **[request-workflow.html](public/request-workflow.html)** - Custom workflow request form
 
 ## 🚀 Quick Start
 
@@ -167,16 +192,25 @@ Visit `http://localhost:3000` in your browser.
 
 ```
 Automation-Website/
-├── index.html              # Main landing page
-├── success.html            # Payment success page
-├── admin.html              # Admin dashboard
-├── supabase_schema.sql     # Database schema
-├── README.md               # This file
-└── backend/
-    ├── main.py             # FastAPI application
-    ├── requirements.txt    # Python dependencies
-    ├── .env.example        # Environment variables template
-    └── .env                # Your actual environment variables (gitignored)
+├── public/                         # Frontend files
+│   ├── index.html                  # Main landing page
+│   ├── auth.html                   # Sign up/login page
+│   ├── request-workflow.html      # Custom workflow request form
+│   ├── success.html                # Payment success page
+│   ├── admin.html                  # Admin dashboard
+│   └── js/
+│       ├── env-config.js           # Frontend environment config (generated)
+│       └── generate-config.js      # Script to generate env-config.js
+├── backend/                        # Backend API
+│   ├── main.py                     # FastAPI application
+│   ├── requirements.txt            # Python dependencies
+│   ├── .env.example                # Environment variables template
+│   └── .env                        # Your actual environment variables (gitignored)
+├── database/                       # Database schemas
+│   ├── neon_schema.sql             # Main database schema
+│   └── auth_migration.sql          # Authentication and custom requests schema
+├── docs/                           # Documentation (gitignored)
+└── README.md                       # This file
 ```
 
 ## 🔑 Getting API Keys
@@ -299,6 +333,17 @@ After deploying backend, update `FRONTEND_URL` in backend `.env` and update API 
 - `POST /api/payment/initialize` - Initialize payment
 - `POST /api/payment/verify` - Verify payment
 - `POST /api/webhook/paystack` - Paystack webhook
+
+### Authentication Endpoints
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user (returns JWT token)
+- `GET /api/auth/me` - Get current user info (requires auth)
+- `POST /api/auth/logout` - Logout user (requires auth)
+
+### Custom Request Endpoints
+- `POST /api/requests/submit` - Submit custom workflow request
+- `GET /api/admin/requests` - Get all requests (admin only)
+- `PATCH /api/admin/requests/{id}` - Update request status (admin only)
 
 ### Admin Endpoints
 - `POST /api/admin/login` - Admin login

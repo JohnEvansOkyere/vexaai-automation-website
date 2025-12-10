@@ -155,12 +155,21 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#workflows" class="text-gray-700 hover:text-purple-600 font-medium transition">Workflows</a>
                     <a href="#pricing" class="text-gray-700 hover:text-purple-600 font-medium transition">Pricing</a>
+                    <a href="request-workflow.html" class="text-gray-700 hover:text-purple-600 font-medium transition">Custom Request</a>
                     <a href="#faq" class="text-gray-700 hover:text-purple-600 font-medium transition">FAQ</a>
-                    <a href="mailto:johnevansokyere@gmail.com" class="text-gray-700 hover:text-purple-600 font-medium transition">Contact</a>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <img src="https://flagcdn.com/gh.svg" alt="Ghana" class="w-6 h-4">
-                    <span class="text-sm text-gray-600 hidden sm:inline">Made in Ghana 🇬🇭</span>
+                <div class="flex items-center space-x-4">
+                    <!-- Auth Buttons -->
+                    <div id="authButtons" class="flex items-center space-x-3">
+                        <a href="auth.html" class="text-gray-700 hover:text-purple-600 font-medium transition">Sign In</a>
+                        <a href="auth.html?tab=signup" class="gradient-bg text-white px-4 py-2 rounded-lg font-semibold hover:shadow-lg transition">Sign Up</a>
+                    </div>
+                    <!-- User Menu (Hidden by default) -->
+                    <div id="userMenu" class="hidden flex items-center space-x-3">
+                        <span id="userName" class="text-gray-700 font-medium"></span>
+                        <button onclick="handleLogout()" class="text-gray-700 hover:text-purple-600 font-medium transition">Logout</button>
+                    </div>
+                    <img src="https://flagcdn.com/gh.svg" alt="Ghana" class="w-6 h-4 ml-4">
                 </div>
             </div>
         </div>
@@ -714,15 +723,22 @@
 
         // Initialize Paystack payment
         function initiatePayment(type, amount, workflow) {
-            const email = prompt('Please enter your email address:');
+            // Check if user is logged in
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
 
-            if (!email || !validateEmail(email)) {
-                alert('Please enter a valid email address');
+            if (!token || !user) {
+                // Redirect to auth page with return URL
+                const currentUrl = encodeURIComponent(window.location.href);
+                window.location.href = `auth.html?redirect=${currentUrl}`;
                 return;
             }
 
+            const userData = JSON.parse(user);
+            const email = userData.email;
+
             const handler = PaystackPop.setup({
-                key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your Paystack public key
+                key: window.ENV.PAYSTACK_PUBLIC_KEY || 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxx',
                 email: email,
                 amount: amount,
                 currency: 'GHS',
@@ -800,6 +816,43 @@
                 }
             });
         });
+
+        // Handle logout
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('user');
+                window.location.reload();
+            }
+        }
+
+        // Check user session on page load
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    // Show user menu, hide auth buttons
+                    document.getElementById('authButtons').classList.add('hidden');
+                    document.getElementById('userMenu').classList.remove('hidden');
+                    document.getElementById('userName').textContent = `${userData.first_name || 'User'}`;
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                    // Clear invalid data
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('user');
+                }
+            } else {
+                // Show auth buttons, hide user menu
+                document.getElementById('authButtons').classList.remove('hidden');
+                document.getElementById('userMenu').classList.add('hidden');
+            }
+        });
     </script>
+
+    <!-- Environment Config -->
+    <script src="js/env-config.js"></script>
 </body>
 </html>
