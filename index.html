@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VexaAI - Premium n8n Workflows | Save Weeks of Work</title>
+    <meta name="description" content="Battle-tested, production-ready n8n automation workflows. 150+ workflows used by 300+ automation builders worldwide.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Paystack -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .popular-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .hover-lift {
+            transition: all 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .workflow-item {
+            transition: all 0.2s ease;
+        }
+
+        .workflow-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+
+        .workflow-item.selected {
+            background-color: #ede9fe;
+            border-color: #7c3aed;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .search-input {
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-white to-blue-50">
+
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        V
+                    </div>
+                    <span class="text-2xl font-bold gradient-text">VexaAI</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#workflows" class="text-gray-700 hover:text-purple-600 font-medium transition">Workflows</a>
+                    <a href="#pricing" class="text-gray-700 hover:text-purple-600 font-medium transition">Pricing</a>
+                    <a href="#faq" class="text-gray-700 hover:text-purple-600 font-medium transition">FAQ</a>
+                    <a href="mailto:johnevansokyere@gmail.com" class="text-gray-700 hover:text-purple-600 font-medium transition">Contact</a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://flagcdn.com/gh.svg" alt="Ghana" class="w-6 h-4">
+                    <span class="text-sm text-gray-600 hidden sm:inline">Made in Ghana 🇬🇭</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center animate-fade-in">
+            <div class="inline-flex items-center space-x-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full mb-6">
+                <span class="pulse-animation">🚀</span>
+                <span class="text-sm font-semibold">150+ Workflows Sold | Trusted by 300+ Builders</span>
+            </div>
+
+            <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight">
+                Premium n8n Workflows<br>
+                That Save You <span class="gradient-text">Weeks of Work</span>
+            </h1>
+
+            <p class="text-xl sm:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Battle-tested, production-ready automation workflows built by an expert in Ghana.
+                <span class="font-semibold text-purple-600">Instant delivery after payment.</span>
+            </p>
+
+            <!-- Trust Indicators -->
+            <div class="flex flex-wrap justify-center gap-8 mb-12">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-gray-700 font-medium">150+ workflows sold</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-gray-700 font-medium">Used by 300+ automation builders</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-gray-700 font-medium">Instant delivery</span>
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <a href="#pricing" class="inline-flex items-center space-x-2 gradient-bg text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-all hover:scale-105">
+                    <span>View Pricing</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Workflows Preview -->
+    <section id="workflows" class="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-4 text-gray-900">Popular Workflows</h2>
+            <p class="text-center text-gray-600 mb-12 text-lg">Just a glimpse of what you'll get access to</p>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-2xl hover-lift">
+                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white text-2xl mb-4">📧</div>
+                    <h3 class="text-xl font-bold mb-2">Email Marketing Automation</h3>
+                    <p class="text-gray-600">Automated email sequences with personalization and analytics</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl hover-lift">
+                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white text-2xl mb-4">💰</div>
+                    <h3 class="text-xl font-bold mb-2">Sales Pipeline Manager</h3>
+                    <p class="text-gray-600">Track leads, automate follow-ups, close more deals</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl hover-lift">
+                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center text-white text-2xl mb-4">📱</div>
+                    <h3 class="text-xl font-bold mb-2">Social Media Scheduler</h3>
+                    <p class="text-gray-600">Schedule posts across all platforms automatically</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl font-bold text-center mb-4 text-gray-900">Choose Your Plan</h2>
+            <p class="text-center text-gray-600 mb-16 text-lg">Start automating your business today</p>
+
+            <div class="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+
+                <!-- Single Workflow Card -->
+                <div class="glass-card rounded-3xl p-8 hover-lift border-2 border-gray-200">
+                    <h3 class="text-2xl font-bold mb-2">Single Workflow Access</h3>
+                    <p class="text-gray-600 mb-6">Choose and buy any one workflow you want</p>
+
+                    <div class="mb-6">
+                        <span class="text-5xl font-black text-gray-900">GHS 149</span>
+                        <span class="text-gray-600 ml-2">one-time</span>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Access to one workflow of your choice</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Instant JSON download</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Full documentation included</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Email support</span>
+                        </li>
+                    </ul>
+
+                    <button onclick="openSingleWorkflowModal()" class="w-full bg-gray-900 text-white py-4 rounded-full font-bold text-lg hover:bg-gray-800 transition-all hover:shadow-xl flex items-center justify-center space-x-2">
+                        <span>Buy Single Workflow</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                        </svg>
+                    </button>
+
+                    <p class="text-center text-sm text-gray-500 mt-4">Instant JSON download after payment</p>
+                </div>
+
+                <!-- All Access Card -->
+                <div class="glass-card rounded-3xl p-8 hover-lift border-4 border-purple-500 relative shadow-2xl">
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="popular-badge text-white px-6 py-2 rounded-full font-bold text-sm shadow-lg">
+                            ⭐ MOST POPULAR
+                        </span>
+                    </div>
+
+                    <h3 class="text-2xl font-bold mb-2 mt-4">All Access Pass</h3>
+                    <p class="text-gray-600 mb-6">Lifetime access to everything</p>
+
+                    <div class="mb-2">
+                        <span class="text-5xl font-black gradient-text">GHS 799</span>
+                        <span class="text-gray-600 ml-2">one-time</span>
+                    </div>
+                    <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full inline-block text-sm font-semibold mb-6">
+                        💰 Save 80%+ compared to buying individually
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700"><strong>Lifetime access to ALL workflows</strong> (150+ and growing)</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Instant access to private Notion library</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700"><strong>Free updates forever</strong> - new workflows added weekly</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700"><strong>Priority WhatsApp support</strong></span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Exclusive community access</span>
+                        </li>
+                        <li class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Custom workflow requests (2 per month)</span>
+                        </li>
+                    </ul>
+
+                    <button onclick="buyAllAccess()" class="w-full gradient-bg text-white py-5 rounded-full font-bold text-lg hover:shadow-2xl transition-all hover:scale-105 flex items-center justify-center space-x-2">
+                        <span>Get All Access Now</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </button>
+
+                    <p class="text-center text-sm text-gray-500 mt-4">🔥 87 happy buyers in the last 30 days</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof / Testimonials -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12">Loved by Automation Builders Worldwide</h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                            SK
+                        </div>
+                        <div>
+                            <div class="font-bold">Sarah K.</div>
+                            <div class="text-sm text-gray-600">Nigeria</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-700">"Saved me 3 weeks of work! The workflows are production-ready and well-documented. Best investment ever."</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                            DM
+                        </div>
+                        <div>
+                            <div class="font-bold">David M.</div>
+                            <div class="text-sm text-gray-600">Kenya</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-700">"The All Access Pass pays for itself with just 2 workflows. John's support is outstanding!"</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full flex items-center justify-center text-white font-bold mr-3">
+                            EA
+                        </div>
+                        <div>
+                            <div class="font-bold">Emma A.</div>
+                            <div class="text-sm text-gray-600">South Africa</div>
+                        </div>
+                    </div>
+                    <div class="text-yellow-400 mb-2">⭐⭐⭐⭐⭐</div>
+                    <p class="text-gray-700">"Clean code, great documentation. These workflows are exactly what I needed to scale my agency."</p>
+                </div>
+            </div>
+
+            <!-- Avatar Grid -->
+            <div class="mt-12 text-center">
+                <p class="text-gray-600 mb-4">Join 300+ satisfied customers</p>
+                <div class="flex justify-center -space-x-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 border-2 border-white"></div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 border-2 border-white"></div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 border-2 border-white"></div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 border-2 border-white"></div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-400 to-pink-400 border-2 border-white"></div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 border-2 border-white flex items-center justify-center text-white text-xs font-bold">
+                        300+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-12">Frequently Asked Questions</h2>
+
+            <div class="space-y-4">
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button onclick="toggleFAQ(this)" class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="font-bold text-lg">How do I get access after payment?</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="faq-content px-6 pb-5 hidden">
+                        <p class="text-gray-700">After successful payment via Paystack, you'll be redirected to a success page with instant access. For single workflows, you'll get a direct download link. For All Access Pass, you'll receive your private Notion library link and WhatsApp community invite immediately.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button onclick="toggleFAQ(this)" class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="font-bold text-lg">What payment methods do you accept?</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="faq-content px-6 pb-5 hidden">
+                        <p class="text-gray-700">We accept Mobile Money (MTN, Vodafone, AirtelTigo) and all major cards (Visa, Mastercard) through Paystack. All payments are secure and processed instantly.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button onclick="toggleFAQ(this)" class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="font-bold text-lg">Can I get a refund if the workflow doesn't work?</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="faq-content px-6 pb-5 hidden">
+                        <p class="text-gray-700">All workflows are battle-tested and production-ready. However, if you encounter any issues, contact us within 7 days at johnevansokyere@gmail.com or via WhatsApp (+233544954643) and we'll help you get it working or provide a full refund.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button onclick="toggleFAQ(this)" class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="font-bold text-lg">Do I need n8n experience to use these workflows?</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="faq-content px-6 pb-5 hidden">
+                        <p class="text-gray-700">Basic n8n knowledge is helpful but not required. Each workflow comes with detailed documentation and setup instructions. Plus, All Access Pass members get priority WhatsApp support to help with any questions.</p>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <button onclick="toggleFAQ(this)" class="w-full px-6 py-5 text-left flex justify-between items-center hover:bg-gray-50 transition">
+                        <span class="font-bold text-lg">How often are new workflows added?</span>
+                        <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div class="faq-content px-6 pb-5 hidden">
+                        <p class="text-gray-700">We add 3-5 new workflows every week. All Access Pass members get instant access to all new workflows at no additional cost - forever!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 bg-white/50">
+        <div class="max-w-4xl mx-auto text-center">
+            <p class="text-gray-600 mb-6 font-semibold">Secure Payment Methods</p>
+            <div class="flex flex-wrap justify-center items-center gap-8">
+                <div class="flex items-center space-x-2">
+                    <div class="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center font-bold text-white">MTN</div>
+                    <span class="text-gray-700">MTN Mobile Money</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center font-bold text-white">V</div>
+                    <span class="text-gray-700">Vodafone Cash</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white">💳</div>
+                    <span class="text-gray-700">Visa / Mastercard</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                            V
+                        </div>
+                        <span class="text-2xl font-bold">VexaAI</span>
+                    </div>
+                    <p class="text-gray-400">Premium n8n workflows built by experts for automation enthusiasts.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Contact</h4>
+                    <div class="space-y-2 text-gray-400">
+                        <p>📧 johnevansokyere@gmail.com</p>
+                        <p>📱 +233 54 495 4643</p>
+                        <p>🇬🇭 Accra, Ghana</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Quick Links</h4>
+                    <div class="space-y-2">
+                        <a href="#pricing" class="block text-gray-400 hover:text-white transition">Pricing</a>
+                        <a href="#faq" class="block text-gray-400 hover:text-white transition">FAQ</a>
+                        <a href="mailto:johnevansokyere@gmail.com" class="block text-gray-400 hover:text-white transition">Support</a>
+                        <a href="/admin.html" class="block text-gray-400 hover:text-white transition">Admin Login</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 VexaAI. Built with ❤️ in Ghana by John Evans Okyere. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Single Workflow Modal -->
+    <div id="singleWorkflowModal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold">Choose Your Workflow</h2>
+                    <button onclick="closeSingleWorkflowModal()" class="text-gray-500 hover:text-gray-700 text-4xl leading-none">
+                        &times;
+                    </button>
+                </div>
+
+                <input
+                    type="text"
+                    id="workflowSearch"
+                    placeholder="🔍 Search workflows..."
+                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl mb-6 search-input focus:outline-none focus:border-purple-500"
+                    onkeyup="filterWorkflows()"
+                >
+
+                <div id="workflowList" class="space-y-3 max-h-96 overflow-y-auto mb-6">
+                    <!-- Workflows will be loaded here -->
+                </div>
+
+                <button
+                    id="proceedBtn"
+                    onclick="proceedToCheckout()"
+                    disabled
+                    class="w-full gradient-bg text-white py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl transition-all"
+                >
+                    Proceed to Payment (GHS 149)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Workflow data
+        const workflows = [
+            { id: 1, name: "Email Marketing Automation", category: "Marketing", icon: "📧" },
+            { id: 2, name: "Sales Pipeline Manager", category: "Sales", icon: "💰" },
+            { id: 3, name: "Social Media Scheduler", category: "Marketing", icon: "📱" },
+            { id: 4, name: "Lead Generation & Nurturing", category: "Sales", icon: "🎯" },
+            { id: 5, name: "Customer Support Automation", category: "Support", icon: "💬" },
+            { id: 6, name: "Invoice & Payment Tracker", category: "Finance", icon: "💳" },
+            { id: 7, name: "Content Publishing System", category: "Content", icon: "📝" },
+            { id: 8, name: "Data Sync Across Platforms", category: "Integration", icon: "🔄" },
+            { id: 9, name: "WhatsApp Business Automation", category: "Communication", icon: "💚" },
+            { id: 10, name: "E-commerce Order Processor", category: "E-commerce", icon: "🛒" },
+            { id: 11, name: "Inventory Management System", category: "Operations", icon: "📦" },
+            { id: 12, name: "HR Onboarding Automation", category: "HR", icon: "👥" },
+            { id: 13, name: "Task & Project Management", category: "Productivity", icon: "✅" },
+            { id: 14, name: "Website Analytics Dashboard", category: "Analytics", icon: "📊" },
+            { id: 15, name: "Appointment Booking System", category: "Scheduling", icon: "📅" },
+        ];
+
+        let selectedWorkflow = null;
+
+        // Load workflows into modal
+        function loadWorkflows() {
+            const workflowList = document.getElementById('workflowList');
+            workflowList.innerHTML = workflows.map(workflow => `
+                <div class="workflow-item p-4 border-2 border-gray-200 rounded-xl cursor-pointer"
+                     onclick="selectWorkflow(${workflow.id})"
+                     data-id="${workflow.id}"
+                     data-name="${workflow.name.toLowerCase()}">
+                    <div class="flex items-center space-x-3">
+                        <div class="text-3xl">${workflow.icon}</div>
+                        <div class="flex-1">
+                            <div class="font-bold">${workflow.name}</div>
+                            <div class="text-sm text-gray-500">${workflow.category}</div>
+                        </div>
+                        <div class="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filter workflows
+        function filterWorkflows() {
+            const searchTerm = document.getElementById('workflowSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.workflow-item');
+
+            items.forEach(item => {
+                const name = item.getAttribute('data-name');
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select workflow
+        function selectWorkflow(id) {
+            // Remove previous selection
+            document.querySelectorAll('.workflow-item').forEach(item => {
+                item.classList.remove('selected');
+                item.querySelector('.w-6').innerHTML = '';
+            });
+
+            // Add new selection
+            const selectedItem = document.querySelector(`[data-id="${id}"]`);
+            selectedItem.classList.add('selected');
+            selectedItem.querySelector('.w-6').innerHTML = `
+                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+            `;
+
+            selectedWorkflow = workflows.find(w => w.id === id);
+            document.getElementById('proceedBtn').disabled = false;
+        }
+
+        // Open single workflow modal
+        function openSingleWorkflowModal() {
+            loadWorkflows();
+            document.getElementById('singleWorkflowModal').style.display = 'block';
+        }
+
+        // Close single workflow modal
+        function closeSingleWorkflowModal() {
+            document.getElementById('singleWorkflowModal').style.display = 'none';
+            selectedWorkflow = null;
+            document.getElementById('proceedBtn').disabled = true;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('singleWorkflowModal');
+            if (event.target == modal) {
+                closeSingleWorkflowModal();
+            }
+        }
+
+        // Proceed to checkout for single workflow
+        function proceedToCheckout() {
+            if (!selectedWorkflow) return;
+
+            initiatePayment('single', 14900, selectedWorkflow); // GHS 149 in pesewas
+        }
+
+        // Buy all access
+        function buyAllAccess() {
+            initiatePayment('all-access', 79900, null); // GHS 799 in pesewas
+        }
+
+        // Initialize Paystack payment
+        function initiatePayment(type, amount, workflow) {
+            const email = prompt('Please enter your email address:');
+
+            if (!email || !validateEmail(email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+
+            const handler = PaystackPop.setup({
+                key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your Paystack public key
+                email: email,
+                amount: amount,
+                currency: 'GHS',
+                ref: 'VEX' + Math.floor((Math.random() * 1000000000) + 1),
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: "Purchase Type",
+                            variable_name: "purchase_type",
+                            value: type
+                        },
+                        {
+                            display_name: "Workflow",
+                            variable_name: "workflow",
+                            value: workflow ? workflow.name : 'All Access Pass'
+                        }
+                    ]
+                },
+                callback: function(response) {
+                    // Payment successful
+                    verifyPayment(response.reference, type, workflow, email);
+                },
+                onClose: function() {
+                    alert('Payment window closed');
+                }
+            });
+
+            handler.openIframe();
+        }
+
+        // Verify payment
+        async function verifyPayment(reference, type, workflow, email) {
+            // In production, verify with your backend
+            // For now, redirect to success page
+            const params = new URLSearchParams({
+                ref: reference,
+                type: type,
+                workflow: workflow ? workflow.name : 'all-access',
+                email: email
+            });
+
+            window.location.href = `success.html?${params.toString()}`;
+        }
+
+        // Validate email
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Toggle FAQ
+        function toggleFAQ(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('svg');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

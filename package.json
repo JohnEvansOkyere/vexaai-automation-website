@@ -1,0 +1,22 @@
+{
+  "name": "vexaai-workflow-sales",
+  "version": "1.0.0",
+  "description": "Premium n8n Workflows Sales Platform",
+  "scripts": {
+    "config": "node generate-config.js",
+    "dev": "npm run config && python -m http.server 3000",
+    "backend": "cd backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000",
+    "backend:prod": "cd backend && uvicorn main:app --host 0.0.0.0 --port 8000",
+    "start": "npm run config && npm run dev"
+  },
+  "keywords": [
+    "n8n",
+    "workflows",
+    "automation",
+    "ghana",
+    "paystack",
+    "e-commerce"
+  ],
+  "author": "John Evans Okyere <johnevansokyere@gmail.com>",
+  "license": "PRIVATE"
+}
