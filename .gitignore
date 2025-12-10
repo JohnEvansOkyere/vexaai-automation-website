@@ -55,3 +55,4 @@ QUICK_START.md
 OVERVIEW.md
 ENV_SETUP.md
 SECURITY_NOTES.md
+.env.example
