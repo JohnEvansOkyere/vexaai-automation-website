@@ -1,95 +1,93 @@
 # VexaAI - Premium n8n Workflows Sales Platform
 
-A stunning, modern, and fully functional e-commerce website for selling premium n8n automation workflows. Built with pure HTML, Tailwind CSS, vanilla JavaScript, FastAPI backend, and Neon PostgreSQL database.
+A modern e-commerce platform for selling premium n8n automation workflows. Built with HTML5, Tailwind CSS, vanilla JavaScript, FastAPI backend, and Neon PostgreSQL database.
 
-## 🚀 Features
+## Overview
+
+This platform provides a complete solution for selling automation workflows with integrated payment processing, user authentication, and custom request management. The system supports both individual workflow purchases and all-access subscriptions.
+
+## Features
 
 ### Frontend
-- ✨ **Beautiful Modern Design**: Glassmorphism cards, smooth animations, gradient backgrounds
-- 📱 **Fully Responsive**: Mobile-first design that looks great on all devices
-- 💳 **Paystack Integration**: Support for Mobile Money (MTN, Vodafone, AirtelTigo) and Cards (Visa/Mastercard)
-- 🔐 **User Authentication**: JWT-based authentication with sign up/login system
-- 🎯 **Two Purchase Options**:
-  - Single Workflow Access (GHS 149)
-  - All Access Pass (GHS 799) - Most Popular
-- 📝 **Custom Workflow Requests**: Users can request tailored automation solutions
-- ✅ **Success Page**: Automatic redirect with download links and access information
-- 🔍 **Searchable Workflow Modal**: Easy workflow selection with search functionality
-- 📊 **Social Proof**: Testimonials, trust indicators, and customer avatars
-- ❓ **FAQ Section**: Accordion-style frequently asked questions
+- Modern responsive design with glassmorphism effects and smooth animations
+- Mobile-first approach compatible with all devices
+- Paystack payment integration supporting Mobile Money and card payments
+- JWT-based user authentication system
+- Two-tier pricing model: Single Workflow (GHS 149) and All Access Pass (GHS 799)
+- Custom workflow request form for tailored solutions
+- Post-payment success page with download access
+- Searchable workflow catalog with category filtering
+- Customer testimonials and social proof elements
+- Comprehensive FAQ section
 
 ### Backend (FastAPI)
-- 🔐 **User Authentication**: JWT tokens, password hashing with bcrypt
-- 💳 **Secure Payment Processing**: Paystack integration with webhook support
-- 📊 **RESTful API**: Clean, documented API endpoints
-- 💾 **Database Ready**: Schema ready for Neon PostgreSQL (currently in-memory)
-- 🔑 **Admin Authentication**: Secure admin dashboard access
-- 📝 **Custom Request System**: Handle and track custom workflow requests
-- 📈 **Analytics & Reporting**: Sales tracking and customer insights
+- RESTful API architecture with OpenAPI documentation
+- JWT token-based authentication with bcrypt password hashing
+- Paystack payment gateway integration with webhook support
+- PostgreSQL database integration (Neon serverless)
+- Admin authentication and authorization
+- Custom workflow request management system
+- Sales analytics and reporting capabilities
 
 ### Admin Dashboard
-- 📊 **Real-time Statistics**: Revenue, sales, customers, conversion rates
-- 📈 **Beautiful Charts**: Revenue trends and sales distribution (Chart.js)
-- 👥 **Customer Management**: View and manage customer data
-- 🛒 **Sales Tracking**: Monitor all transactions and payment details
-- 📝 **Custom Requests**: View and manage custom workflow requests
-- 🔧 **Workflow Management**: Add, edit, and track workflow performance
-- ⚙️ **Settings Panel**: Configure Paystack, Neon, Notion, and pricing
-- 🎨 **Modern UI**: Gradient sidebar, glassmorphism cards, responsive design
+- Real-time business metrics and KPIs
+- Interactive revenue and sales charts using Chart.js
+- Customer database management
+- Transaction history and payment tracking
+- Custom request queue with status management
+- Workflow inventory management
+- System configuration panel
+- Responsive dashboard interface
 
 ### Database (Neon PostgreSQL)
-- 📦 **Complete Schema**: Users, customers, sales, workflows, custom_requests
-- 🔒 **Row Level Security**: Secure data access policies
-- 🔄 **Automated Triggers**: Auto-update timestamps
-- 📊 **Useful Views**: Dashboard stats, popular workflows, request overview
-- 🎯 **Stored Functions**: User stats, session cleanup, sale recording
+- Normalized schema with users, customers, sales, workflows, and custom_requests tables
+- Row-level security policies for data protection
+- Automated timestamp triggers
+- Database views for analytics aggregation
+- Stored procedures for complex operations
 
-## 🛠️ Tech Stack
+## Technology Stack
 
-- **Frontend**: HTML5, Tailwind CSS (CDN), Vanilla JavaScript
-- **Backend**: Python 3.9+, FastAPI
-- **Database**: Neon PostgreSQL (serverless)
-- **Authentication**: JWT tokens, bcrypt password hashing
-- **Payment**: Paystack (Mobile Money + Card)
-- **Charts**: Chart.js
-- **Hosting**: Can be deployed to Vercel/Netlify (frontend), Railway/Render (backend)
+- Frontend: HTML5, Tailwind CSS, Vanilla JavaScript
+- Backend: Python 3.9+, FastAPI
+- Database: Neon PostgreSQL (serverless)
+- Authentication: JWT tokens, bcrypt password hashing
+- Payment Processing: Paystack API
+- Data Visualization: Chart.js
+- Deployment: Vercel/Netlify (frontend), Railway/Render (backend)
 
-## 📋 Prerequisites
+## Prerequisites
 
-- Python 3.9 or higher (3.13 recommended)
-- Neon database account (free tier works)
-- Paystack account (for payment processing)
-- Node.js (optional, for local development server)
+- Python 3.9 or higher (Python 3.13 recommended)
+- Neon database account
+- Paystack merchant account
+- Node.js (optional, for development server)
 
-## 🆕 New Features (Latest Update)
+## Recent Updates
 
 ### User Authentication System
-- **Sign Up/Login**: Users must create an account before purchasing
-- **JWT Tokens**: Secure session management
-- **Password Security**: Bcrypt hashing for user passwords
-- **Protected Routes**: Purchase functionality requires authentication
-- **Session Persistence**: Auto-login on return visits
+- User registration and login functionality
+- JWT-based session management with 24-hour token expiration
+- Bcrypt password hashing for security
+- Protected purchase routes requiring authentication
+- Persistent sessions using browser localStorage
 
 ### Custom Workflow Request System
-- **Request Form**: Users can request custom automation solutions
-- **Detailed Submissions**: Capture requirements, budget, timeline, platforms
-- **Admin Dashboard**: View and manage all custom requests
-- **Status Tracking**: Track request status (pending, reviewing, quoted, completed)
-- **Priority Management**: Set urgency levels for requests
+- Comprehensive request form capturing project requirements
+- Budget range and timeline selection
+- Platform preference specification (n8n, Zapier, Make, etc.)
+- Integration requirements documentation
+- Admin dashboard for request management
+- Status tracking system (pending, reviewing, quoted, in_progress, completed, rejected)
+- Priority level management
 
-### Pages Added
-1. **[auth.html](public/auth.html)** - Sign up/login page with tabbed interface
-2. **[request-workflow.html](public/request-workflow.html)** - Custom workflow request form
+### New Pages
+- auth.html: User authentication interface with tabbed sign-up and login forms
+- request-workflow.html: Custom workflow request submission form
 
-## 🚀 Quick Start
+## Installation
 
-### 1. Clone the Repository
-
-```bash
-cd /path/to/Automation-Website
-```
-
-### 2. Set Up Backend
+### Backend Setup
 
 ```bash
 # Navigate to backend directory
@@ -99,33 +97,34 @@ cd backend
 python -m venv venv
 
 # Activate virtual environment
-# On Linux/Mac:
+# Linux/Mac:
 source venv/bin/activate
-# On Windows:
+# Windows:
 # venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Copy environment file
+# Configure environment variables
 cp .env.example .env
-
-# Edit .env with your credentials
-nano .env  # or use your preferred editor
+nano .env
 ```
 
-### 3. Configure Environment Variables
+### Environment Configuration
 
-Edit `backend/.env` and add your credentials:
+Edit backend/.env with your credentials:
 
 ```env
 # Paystack Configuration
 PAYSTACK_PUBLIC_KEY=pk_test_your_public_key
 PAYSTACK_SECRET_KEY=sk_test_your_secret_key
 
-# Supabase Configuration
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your_supabase_anon_key
+# Database Configuration
+DATABASE_URL=postgresql://username:password@host/database
+
+# Authentication
+SECRET_KEY=your_secret_key_change_in_production
+JWT_EXPIRY_HOURS=24
 
 # Admin Credentials
 ADMIN_EMAIL=johnevansokyere@gmail.com
@@ -138,312 +137,263 @@ FRONTEND_URL=http://localhost:8000
 NOTION_LIBRARY_URL=https://notion.so/your-private-library
 ```
 
-### 4. Set Up Supabase Database
+### Database Setup
 
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
-2. Create a new project or select existing one
+1. Access your Neon dashboard at console.neon.tech
+2. Create a new project or select existing project
 3. Navigate to SQL Editor
-4. Copy the contents of `supabase_schema.sql`
-5. Paste and run the SQL script
-6. Verify tables are created in the Table Editor
+4. Execute database/neon_schema.sql to create main schema
+5. Execute database/auth_migration.sql to add authentication tables
+6. Verify table creation in the Tables section
 
-### 5. Update Frontend with Your Paystack Key
+### Running the Application
 
-Edit `index.html` line 563 and replace the Paystack public key:
-
-```javascript
-key: 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with your actual key
-```
-
-### 6. Run the Backend Server
+Start the backend server:
 
 ```bash
-# From backend directory
-python main.py
+# Method 1: Using run.py (Recommended)
+cd backend
+python run.py
 
-# Or using uvicorn directly
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Method 2: Using uvicorn directly
+cd backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Method 3: Using python module
+cd backendpython -m app.main
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at http://localhost:8000
 
-### 7. Serve the Frontend
+Serve the frontend using one of these methods:
 
-You can use any static file server. Here are some options:
-
-**Option A: Python HTTP Server**
+Python HTTP Server:
 ```bash
-# From root directory
 python -m http.server 3000
 ```
 
-**Option B: Node.js HTTP Server**
+Node.js HTTP Server:
 ```bash
 npx http-server -p 3000
 ```
 
-**Option C: VS Code Live Server**
-- Install "Live Server" extension
-- Right-click `index.html` and select "Open with Live Server"
+VS Code Live Server:
+- Install Live Server extension
+- Right-click index.html and select Open with Live Server
 
-Visit `http://localhost:3000` in your browser.
+Access the application at http://localhost:3000
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Automation-Website/
-├── public/                         # Frontend files
-│   ├── index.html                  # Main landing page
-│   ├── auth.html                   # Sign up/login page
-│   ├── request-workflow.html      # Custom workflow request form
-│   ├── success.html                # Payment success page
-│   ├── admin.html                  # Admin dashboard
+├── public/
+│   ├── index.html
+│   ├── auth.html
+│   ├── request-workflow.html
+│   ├── success.html
+│   ├── admin.html
 │   └── js/
-│       ├── env-config.js           # Frontend environment config (generated)
-│       └── generate-config.js      # Script to generate env-config.js
-├── backend/                        # Backend API
-│   ├── main.py                     # FastAPI application
-│   ├── requirements.txt            # Python dependencies
-│   ├── .env.example                # Environment variables template
-│   └── .env                        # Your actual environment variables (gitignored)
-├── database/                       # Database schemas
-│   ├── neon_schema.sql             # Main database schema
-│   └── auth_migration.sql          # Authentication and custom requests schema
-├── docs/                           # Documentation (gitignored)
-└── README.md                       # This file
+│       ├── env-config.js
+│       └── generate-config.js
+├── backend/
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── .env.example
+│   └── .env
+├── database/
+│   ├── neon_schema.sql
+│   └── auth_migration.sql
+├── docs/
+└── README.md
 ```
 
-## 🔑 Getting API Keys
+## API Documentation
 
-### Paystack
-1. Sign up at [Paystack](https://paystack.com/)
-2. Go to Settings → API Keys & Webhooks
-3. Copy your Test Public Key and Test Secret Key
-4. For production, copy your Live keys
+### Public Endpoints
+- GET / - API health check
+- GET /api/workflows - Retrieve all workflows
+- GET /api/workflows/{id} - Retrieve specific workflow
+- POST /api/payment/initialize - Initialize Paystack payment
+- POST /api/payment/verify - Verify payment transaction
+- POST /api/webhook/paystack - Paystack webhook handler
 
-### Supabase
-1. Sign up at [Supabase](https://supabase.com/)
-2. Create a new project
-3. Go to Project Settings → API
-4. Copy the Project URL and `anon/public` key
+### Authentication Endpoints
+- POST /api/auth/register - Register new user account
+- POST /api/auth/login - Authenticate user and return JWT token
+- GET /api/auth/me - Retrieve current user information (requires authentication)
+- POST /api/auth/logout - Invalidate user session (requires authentication)
 
-## 💳 Payment Testing
+### Custom Request Endpoints
+- POST /api/requests/submit - Submit custom workflow request
+- GET /api/admin/requests - Retrieve all custom requests (admin only)
+- PATCH /api/admin/requests/{id} - Update request status (admin only)
 
-### Test Cards (Paystack)
+### Admin Endpoints
+- POST /api/admin/login - Admin authentication
+- GET /api/admin/stats - Dashboard statistics
+- GET /api/admin/sales - Sales transaction history
+- GET /api/admin/customers - Customer database
+
+### Download Endpoints
+- GET /api/download/workflow/{id} - Generate workflow download
+
+Interactive API documentation available at http://localhost:8000/docs
+
+## Payment Testing
+
+### Paystack Test Cards
 ```
 Card Number: 4084084084084081
 CVV: 408
-Expiry: Any future date
+Expiry Date: Any future date
 PIN: 0000
 OTP: 123456
 ```
 
-### Test Mobile Money
-Use the test numbers provided by Paystack in test mode.
+### Mobile Money Testing
+Refer to Paystack documentation for test mobile money numbers in sandbox mode.
 
-## 🔐 Admin Dashboard Access
+## Deployment
 
-**Default Credentials:**
-- Email: `johnevansokyere@gmail.com`
-- Password: `admin123`
+### Frontend Deployment (Vercel)
 
-**⚠️ IMPORTANT**: Change these credentials in production!
+```bash
+npm i -g vercel
+vercel
+```
 
-Access the admin dashboard at: `http://localhost:3000/admin.html`
+### Frontend Deployment (Netlify)
 
-## 🎨 Customization
+```bash
+npm i -g netlify-cli
+netlify deploy
+```
 
-### Update Pricing
-Edit these values in `index.html`:
-- Single Workflow: Line 254 (GHS 149)
-- All Access Pass: Line 281 (GHS 799)
+Alternatively, use the Netlify web interface for drag-and-drop deployment.
 
-Also update in `backend/.env`:
+### Backend Deployment (Railway)
+
+1. Connect GitHub repository
+2. Configure backend folder as root directory
+3. Add environment variables
+4. Deploy automatically on push
+
+### Backend Deployment (Render)
+
+1. Create new Web Service
+2. Connect repository
+3. Build command: pip install -r requirements.txt
+4. Start command: uvicorn main:app --host 0.0.0.0 --port $PORT
+5. Configure environment variables
+6. Deploy
+
+## Configuration
+
+### Pricing Customization
+
+Modify pricing in index.html and backend/.env:
+
 ```env
 SINGLE_WORKFLOW_PRICE=149
 ALL_ACCESS_PRICE=799
 ```
 
-### Add More Workflows
-Edit the `workflows` array in `index.html` (line 566) and `backend/main.py` (line 70).
+### Workflow Management
 
-### Change Company Information
-- Company Name: VexaAI (search and replace)
+Edit workflow catalog in index.html and backend/main.py workflows array.
+
+### Branding Customization
+
+Update company information throughout the codebase:
+- Company Name: VexaAI
 - Founder: John Evans Okyere
 - Email: johnevansokyere@gmail.com
 - Phone: +233544954643
 
-### Update Colors and Styling
-The gradient colors are defined in the `<style>` section:
+### Styling Modifications
+
+Gradient colors defined in CSS:
+
 ```css
 .gradient-bg {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 ```
 
-## 🚀 Deployment
+## Troubleshooting
 
-### Deploy Frontend (Vercel/Netlify)
+### Payment Integration Issues
+- Verify correct Paystack API keys (test vs live environment)
+- Check browser console for JavaScript errors
+- Confirm backend server is running
+- Test with Paystack provided test cards
 
-**Vercel:**
-```bash
-# Install Vercel CLI
-npm i -g vercel
+### Database Connection Errors
+- Verify DATABASE_URL format and credentials
+- Ensure database schema is properly initialized
+- Check network connectivity to Neon
+- Verify SSL mode configuration
 
-# Deploy
-vercel
-```
+### CORS Configuration
+- Update allowed origins in backend/main.py CORSMiddleware
+- Add production domain to allowed origins list
+- Verify API_URL in frontend configuration
 
-**Netlify:**
-```bash
-# Install Netlify CLI
-npm i -g netlify-cli
+### Authentication Problems
+- Verify SECRET_KEY is set in environment variables
+- Check JWT token expiration settings
+- Clear browser localStorage and retry
+- Verify bcrypt is properly installed
 
-# Deploy
-netlify deploy
-```
+## Security Considerations
 
-Or simply drag and drop the frontend files in the Netlify dashboard.
+1. Never commit .env files to version control
+2. Change default admin credentials in production
+3. Use environment variables for all sensitive configuration
+4. Enable row-level security policies in database
+5. Validate Paystack webhook signatures
+6. Use HTTPS in production for all endpoints
+7. Implement rate limiting on authentication endpoints
+8. Regularly update dependencies for security patches
 
-### Deploy Backend (Railway/Render/Heroku)
+## Development Roadmap
 
-**Railway:**
-1. Connect your GitHub repository
-2. Select the `backend` folder as root
-3. Add environment variables
-4. Deploy automatically
+- Email notification system (SendGrid/Mailgun integration)
+- Automatic Notion workspace provisioning
+- WhatsApp group automation for All Access members
+- Workflow preview videos and demos
+- Customer review and rating system
+- Affiliate marketing program
+- Coupon and discount code system
+- Subscription billing for All Access tier
+- Multi-currency support
+- Enhanced admin analytics dashboard
 
-**Render:**
-1. Create new Web Service
-2. Connect repository
-3. Set build command: `pip install -r requirements.txt`
-4. Set start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-5. Add environment variables
-6. Deploy
+## License
 
-### Update Frontend URL
-After deploying backend, update `FRONTEND_URL` in backend `.env` and update API endpoints in frontend files.
+This project is created for VexaAI by John Evans Okyere.
 
-## 📊 API Endpoints
+## Contact Information
 
-### Public Endpoints
-- `GET /` - Health check
-- `GET /api/workflows` - Get all workflows
-- `GET /api/workflows/{id}` - Get specific workflow
-- `POST /api/payment/initialize` - Initialize payment
-- `POST /api/payment/verify` - Verify payment
-- `POST /api/webhook/paystack` - Paystack webhook
+Founder: John Evans Okyere
+Email: johnevansokyere@gmail.com
+Phone: +233 54 495 4643
+Location: Accra, Ghana
 
-### Authentication Endpoints
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user (returns JWT token)
-- `GET /api/auth/me` - Get current user info (requires auth)
-- `POST /api/auth/logout` - Logout user (requires auth)
+## Support
 
-### Custom Request Endpoints
-- `POST /api/requests/submit` - Submit custom workflow request
-- `GET /api/admin/requests` - Get all requests (admin only)
-- `PATCH /api/admin/requests/{id}` - Update request status (admin only)
-
-### Admin Endpoints
-- `POST /api/admin/login` - Admin login
-- `GET /api/admin/stats` - Dashboard statistics
-- `GET /api/admin/sales` - All sales
-- `GET /api/admin/customers` - All customers
-
-### Download Endpoints
-- `GET /api/download/workflow/{id}` - Download workflow
-
-Full API documentation available at: `http://localhost:8000/docs` (Swagger UI)
-
-## 🔧 Troubleshooting
-
-### Payment Not Working
-- Verify Paystack keys are correct (test vs live)
-- Check browser console for errors
-- Ensure backend is running
-- Test with Paystack test cards
-
-### Database Connection Failed
-- Verify Supabase URL and key
-- Check if database schema is properly set up
-- Ensure RLS policies are configured
-
-### CORS Errors
-- Update CORS settings in `backend/main.py`
-- Add your frontend domain to allowed origins
-
-### Admin Dashboard Not Loading
-- Check admin credentials
-- Ensure backend is running
-- Check browser console for errors
-
-## 🎯 Features to Add (Optional Enhancements)
-
-- [ ] Email notifications after purchase (SendGrid/Mailgun)
-- [ ] Automatic Notion access provisioning
-- [ ] WhatsApp group auto-invite
-- [ ] Workflow preview videos
-- [ ] Customer reviews and ratings
-- [ ] Affiliate program
-- [ ] Discount codes/coupons
-- [ ] Subscription model for All Access
-- [ ] Multi-currency support
-- [ ] Custom workflow request form
-
-## 📝 License
-
-This project is created for **VexaAI** by John Evans Okyere.
-
-## 👨‍💻 Contact & Support
-
-**Founder:** John Evans Okyere
-**Email:** johnevansokyere@gmail.com
-**Phone:** +233 54 495 4643
-**Location:** Accra, Ghana 🇬🇭
-
----
-
-**Need Help?**
-- Check the [FAQ section](#-troubleshooting)
+For technical support or inquiries:
 - Email: johnevansokyere@gmail.com
 - WhatsApp: +233544954643
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Tailwind CSS for the amazing utility-first CSS framework
-- Paystack for seamless payment processing in Ghana
-- Supabase for the powerful backend infrastructure
+- Tailwind CSS for the utility-first CSS framework
+- Paystack for payment processing infrastructure
 - FastAPI for the modern Python web framework
+- Neon for serverless PostgreSQL database
 
 ---
 
-**Made with ❤️ in Ghana by VexaAI**
-
-## 🚨 Important Security Notes
-
-1. **Never commit `.env` file** - It's already in `.gitignore`
-2. **Change default admin password** immediately in production
-3. **Use environment variables** for all sensitive data
-4. **Enable RLS policies** in Supabase for data security
-5. **Verify Paystack webhooks** using signature validation
-6. **Use HTTPS** in production for all endpoints
-7. **Implement rate limiting** on payment endpoints
-8. **Hash admin passwords** using bcrypt (update in production)
-
-## 📈 Next Steps
-
-1. ✅ Set up Paystack account and get API keys
-2. ✅ Create Supabase project and run schema
-3. ✅ Test payment flow with test cards
-4. ✅ Customize branding and colors
-5. ✅ Add your actual n8n workflow JSON files
-6. ✅ Set up Notion library for All Access members
-7. ✅ Configure email notifications
-8. ✅ Test on mobile devices
-9. ✅ Deploy to production
-10. ✅ Launch and start selling! 🚀
-
----
-
-**Happy Selling! 💰**
+Made in Ghana by VexaAI

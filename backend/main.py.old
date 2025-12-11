@@ -17,6 +17,7 @@ import secrets
 import jwt
 from passlib.context import CryptContext
 import uuid
+from database import execute_query_dict, get_db_connection
 
 # Load environment variables
 load_dotenv()
@@ -201,11 +202,35 @@ async def root():
 
 @app.get("/api/workflows")
 async def get_workflows():
-    """Get all available workflows"""
-    return {
-        "success": True,
-        "workflows": WORKFLOWS
-    }
+    """Get all available workflows from database"""
+    try:
+        workflows = execute_query_dict(
+            """
+            SELECT
+                id,
+                name,
+                category,
+                icon,
+                description,
+                price,
+                downloads
+            FROM workflows
+            WHERE is_active = TRUE
+            ORDER BY created_at DESC
+            """,
+            fetch_all=True
+        ) or []
+
+        return {
+            "success": True,
+            "workflows": workflows
+        }
+    except Exception as e:
+        # Fallback to hardcoded list if database fails
+        return {
+            "success": True,
+            "workflows": WORKFLOWS
+        }
 
 
 @app.get("/api/workflows/{workflow_id}")
@@ -375,46 +400,156 @@ async def paystack_webhook(request: Request):
 
 @app.post("/api/admin/login")
 async def admin_login(credentials: AdminLogin):
-    """Admin login"""
-    if credentials.email == ADMIN_EMAIL and credentials.password == ADMIN_PASSWORD:
-        # Generate a simple token (use JWT in production)
-        token = secrets.token_urlsafe(32)
+    """Admin login - checks database for is_admin flag"""
+    try:
+        # Find user by email and check if they're an admin
+        user = execute_query_dict(
+            "SELECT id, email, password_hash, first_name, last_name, is_admin, is_active FROM users WHERE email = %s",
+            (credentials.email,),
+            fetch_one=True
+        )
+
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        # Verify password
+        if not verify_password(credentials.password, user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        # Check if user is an admin
+        if not user.get("is_admin", False):
+            raise HTTPException(status_code=403, detail="Access denied. Admin privileges required.")
+
+        # Check if user is active
+        if not user.get("is_active", True):
+            raise HTTPException(status_code=403, detail="Account is inactive")
+
+        # Create JWT token for admin
+        token_data = {
+            "user_id": str(user["id"]),
+            "email": user["email"],
+            "is_admin": True,
+            "first_name": user.get("first_name"),
+            "last_name": user.get("last_name")
+        }
+        token = create_access_token(token_data)
+
+        # Update last login
+        execute_query_dict(
+            "UPDATE users SET last_login = NOW(), login_count = COALESCE(login_count, 0) + 1 WHERE id = %s",
+            (str(user["id"]),)
+        )
+
         return {
             "success": True,
             "token": token,
             "admin": {
-                "email": credentials.email,
-                "name": "John Evans Okyere"
+                "id": str(user["id"]),
+                "email": user["email"],
+                "name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip() or user["email"]
             }
         }
-    else:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/admin/stats")
 async def get_admin_stats():
-    """Get dashboard statistics"""
-    total_revenue = sum(sale["amount"] for sale in sales_db)
-    total_sales = len(sales_db)
-    all_access_sales = len([s for s in sales_db if s.get("purchase_type") == "all-access"])
+    """Get dashboard statistics from database"""
+    try:
+        # Get total revenue and sales
+        sales_stats = execute_query_dict(
+            """
+            SELECT
+                COALESCE(SUM(amount), 0) as total_revenue,
+                COUNT(*) as total_sales,
+                COUNT(CASE WHEN purchase_type = 'all-access' THEN 1 END) as all_access_sales
+            FROM sales
+            """,
+            fetch_one=True
+        )
 
-    # Get unique customers
-    unique_emails = set(sale["email"] for sale in sales_db)
-    total_customers = len(unique_emails)
+        # Get total customers
+        customer_count = execute_query_dict(
+            "SELECT COUNT(DISTINCT email) as total_customers FROM customers",
+            fetch_one=True
+        )
 
-    # Recent sales
-    recent_sales = sorted(sales_db, key=lambda x: x["created_at"], reverse=True)[:10]
+        # Get total users
+        user_count = execute_query_dict(
+            "SELECT COUNT(*) as total_users FROM users WHERE is_active = TRUE",
+            fetch_one=True
+        )
 
-    return {
-        "success": True,
-        "stats": {
-            "total_revenue": total_revenue,
-            "total_sales": total_sales,
-            "total_customers": total_customers,
-            "all_access_sales": all_access_sales,
-            "recent_sales": recent_sales
+        # Get total workflows
+        workflow_count = execute_query_dict(
+            "SELECT COUNT(*) as total_workflows FROM workflows",
+            fetch_one=True
+        )
+
+        # Get custom requests count
+        requests_stats = execute_query_dict(
+            """
+            SELECT
+                COUNT(*) as total_requests,
+                COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_requests
+            FROM custom_requests
+            """,
+            fetch_one=True
+        )
+
+        # Get recent sales
+        recent_sales = execute_query_dict(
+            """
+            SELECT
+                s.id,
+                s.reference,
+                s.email,
+                s.amount,
+                s.purchase_type,
+                w.name as workflow_name,
+                s.payment_channel,
+                s.created_at
+            FROM sales s
+            LEFT JOIN workflows w ON s.workflow_id = w.id
+            ORDER BY s.created_at DESC
+            LIMIT 10
+            """,
+            fetch_all=True
+        ) or []
+
+        return {
+            "success": True,
+            "stats": {
+                "total_revenue": float(sales_stats.get("total_revenue", 0)),
+                "total_sales": sales_stats.get("total_sales", 0),
+                "total_customers": customer_count.get("total_customers", 0),
+                "total_users": user_count.get("total_users", 0),
+                "total_workflows": workflow_count.get("total_workflows", 0),
+                "all_access_sales": sales_stats.get("all_access_sales", 0),
+                "total_requests": requests_stats.get("total_requests", 0),
+                "pending_requests": requests_stats.get("pending_requests", 0),
+                "recent_sales": [
+                    {
+                        "id": str(sale["id"]),
+                        "reference": sale["reference"],
+                        "email": sale["email"],
+                        "amount": float(sale["amount"]),
+                        "purchase_type": sale["purchase_type"],
+                        "workflow_name": sale.get("workflow_name"),
+                        "payment_channel": sale.get("payment_channel"),
+                        "created_at": str(sale["created_at"])
+                    }
+                    for sale in recent_sales
+                ]
+            }
         }
-    }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/admin/sales")
@@ -502,7 +637,11 @@ async def register_user(user_data: UserRegister):
     """Register a new user"""
     try:
         # Check if user already exists
-        existing_user = next((u for u in users_db if u["email"] == user_data.email), None)
+        existing_user = execute_query_dict(
+            "SELECT id FROM users WHERE email = %s",
+            (user_data.email,),
+            fetch_one=True
+        )
         if existing_user:
             raise HTTPException(status_code=400, detail="Email already registered")
 
@@ -514,20 +653,14 @@ async def register_user(user_data: UserRegister):
         user_id = str(uuid.uuid4())
         hashed_pwd = hash_password(user_data.password)
 
-        new_user = {
-            "id": user_id,
-            "email": user_data.email,
-            "password_hash": hashed_pwd,
-            "first_name": user_data.first_name,
-            "last_name": user_data.last_name,
-            "phone": user_data.phone,
-            "is_verified": False,
-            "is_active": True,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
-        }
-
-        users_db.append(new_user)
+        # Insert user into database
+        execute_query_dict(
+            """
+            INSERT INTO users (id, email, password_hash, first_name, last_name, phone, is_verified, is_active, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+            """,
+            (user_id, user_data.email, hashed_pwd, user_data.first_name, user_data.last_name, user_data.phone, False, True)
+        )
 
         return {
             "success": True,
@@ -551,7 +684,11 @@ async def login_user(credentials: UserLogin):
     """Login user and return JWT token"""
     try:
         # Find user by email
-        user = next((u for u in users_db if u["email"] == credentials.email), None)
+        user = execute_query_dict(
+            "SELECT id, email, password_hash, first_name, last_name, phone, is_active, is_admin FROM users WHERE email = %s",
+            (credentials.email,),
+            fetch_one=True
+        )
 
         if not user:
             raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -564,27 +701,31 @@ async def login_user(credentials: UserLogin):
         if not user.get("is_active", True):
             raise HTTPException(status_code=403, detail="Account is inactive")
 
+        # Update last login
+        execute_query_dict(
+            "UPDATE users SET last_login = NOW(), login_count = COALESCE(login_count, 0) + 1 WHERE id = %s",
+            (str(user["id"]),)
+        )
+
         # Create JWT token
         token_data = {
-            "user_id": user["id"],
+            "user_id": str(user["id"]),
             "email": user["email"],
             "first_name": user.get("first_name"),
             "last_name": user.get("last_name")
         }
         token = create_access_token(token_data)
 
-        # Update last login (in production, update in database)
-        user["last_login"] = datetime.utcnow().isoformat()
-
         return {
             "success": True,
             "token": token,
             "user": {
-                "id": user["id"],
+                "id": str(user["id"]),
                 "email": user["email"],
                 "first_name": user.get("first_name"),
                 "last_name": user.get("last_name"),
-                "phone": user.get("phone")
+                "phone": user.get("phone"),
+                "is_admin": user.get("is_admin", False)
             }
         }
 
@@ -599,7 +740,11 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current authenticated user information"""
     try:
         # Find full user details
-        user = next((u for u in users_db if u["id"] == current_user["user_id"]), None)
+        user = execute_query_dict(
+            "SELECT id, email, first_name, last_name, phone, is_verified, is_admin, created_at FROM users WHERE id = %s",
+            (current_user["user_id"],),
+            fetch_one=True
+        )
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
@@ -607,13 +752,14 @@ async def get_current_user_info(current_user: dict = Depends(get_current_user)):
         return {
             "success": True,
             "user": {
-                "id": user["id"],
+                "id": str(user["id"]),
                 "email": user["email"],
                 "first_name": user.get("first_name"),
                 "last_name": user.get("last_name"),
                 "phone": user.get("phone"),
                 "is_verified": user.get("is_verified", False),
-                "created_at": user.get("created_at")
+                "is_admin": user.get("is_admin", False),
+                "created_at": str(user.get("created_at")) if user.get("created_at") else None
             }
         }
 
@@ -643,28 +789,26 @@ async def submit_custom_request(request_data: CustomRequestSubmit):
         # Create new request
         request_id = str(uuid.uuid4())
 
-        new_request = {
-            "id": request_id,
-            "user_id": None,  # Will be set if user is authenticated
-            "name": request_data.name,
-            "email": request_data.email,
-            "phone": request_data.phone,
-            "company": request_data.company,
-            "workflow_title": request_data.workflow_title,
-            "description": request_data.description,
-            "use_case": request_data.use_case,
-            "budget_range": request_data.budget_range,
-            "timeline": request_data.timeline,
-            "preferred_platforms": request_data.preferred_platforms,
-            "integration_needs": request_data.integration_needs,
-            "status": "pending",
-            "priority": "normal",
-            "response_email_sent": False,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
-        }
-
-        custom_requests_db.append(new_request)
+        # Insert into database
+        execute_query_dict(
+            """
+            INSERT INTO custom_requests (
+                id, user_id, name, email, phone, company,
+                workflow_title, description, use_case, budget_range,
+                timeline, preferred_platforms, integration_needs,
+                status, priority, response_email_sent, created_at, updated_at
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW()
+            )
+            """,
+            (
+                request_id, None, request_data.name, request_data.email,
+                request_data.phone, request_data.company, request_data.workflow_title,
+                request_data.description, request_data.use_case, request_data.budget_range,
+                request_data.timeline, request_data.preferred_platforms,
+                request_data.integration_needs, "pending", "normal", False
+            )
+        )
 
         # TODO: Send email notification to admin
         # TODO: Send confirmation email to user
@@ -677,7 +821,7 @@ async def submit_custom_request(request_data: CustomRequestSubmit):
                 "id": request_id,
                 "workflow_title": request_data.workflow_title,
                 "status": "pending",
-                "created_at": new_request["created_at"]
+                "created_at": datetime.utcnow().isoformat()
             }
         }
 
@@ -745,6 +889,219 @@ async def update_request_status(request_id: str, status: str, admin_notes: Optio
 
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================
+# WORKFLOW MANAGEMENT ROUTES (ADMIN)
+# ============================================
+
+class WorkflowUpload(BaseModel):
+    name: str
+    category: str
+    icon: str
+    description: str
+    price: float = 149.00
+    tags: Optional[List[str]] = []
+    workflow_json: dict  # The actual n8n workflow JSON
+
+
+@app.get("/api/admin/workflows")
+async def get_all_workflows_admin():
+    """Get all workflows with full details (admin only)"""
+    try:
+        workflows = execute_query_dict(
+            """
+            SELECT
+                id,
+                name,
+                category,
+                icon,
+                description,
+                price,
+                tags,
+                downloads,
+                revenue,
+                is_active,
+                created_at,
+                updated_at
+            FROM workflows
+            ORDER BY created_at DESC
+            """,
+            fetch_all=True
+        ) or []
+
+        return {
+            "success": True,
+            "workflows": [
+                {
+                    "id": w["id"],
+                    "name": w["name"],
+                    "category": w.get("category"),
+                    "icon": w.get("icon"),
+                    "description": w.get("description"),
+                    "price": float(w.get("price", 149)),
+                    "tags": w.get("tags", []),
+                    "downloads": w.get("downloads", 0),
+                    "revenue": float(w.get("revenue", 0)),
+                    "is_active": w.get("is_active", True),
+                    "created_at": str(w.get("created_at")),
+                    "updated_at": str(w.get("updated_at"))
+                }
+                for w in workflows
+            ]
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/workflows")
+async def upload_workflow(workflow_data: WorkflowUpload):
+    """Upload/create a new workflow (admin only)"""
+    try:
+        import json
+
+        # Convert workflow JSON to string for storage in json_file_url column
+        json_string = json.dumps(workflow_data.workflow_json)
+
+        workflow_id = execute_query_dict(
+            """
+            INSERT INTO workflows (
+                name, category, icon, description, price,
+                tags, json_file_url, downloads, revenue,
+                is_active, created_at, updated_at
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s, %s, 0, 0, TRUE, NOW(), NOW()
+            )
+            RETURNING id
+            """,
+            (
+                workflow_data.name,
+                workflow_data.category,
+                workflow_data.icon,
+                workflow_data.description,
+                workflow_data.price,
+                workflow_data.tags,
+                json_string
+            ),
+            fetch_one=True
+        )
+
+        return {
+            "success": True,
+            "message": "Workflow uploaded successfully",
+            "workflow_id": workflow_id["id"]
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.put("/api/admin/workflows/{workflow_id}")
+async def update_workflow(workflow_id: int, workflow_data: WorkflowUpload):
+    """Update an existing workflow (admin only)"""
+    try:
+        import json
+
+        execute_query_dict(
+            """
+            UPDATE workflows
+            SET
+                name = %s,
+                category = %s,
+                icon = %s,
+                description = %s,
+                price = %s,
+                tags = %s,
+                json_file_url = %s,
+                updated_at = NOW()
+            WHERE id = %s
+            """,
+            (
+                workflow_data.name,
+                workflow_data.category,
+                workflow_data.icon,
+                workflow_data.description,
+                workflow_data.price,
+                workflow_data.tags,
+                json.dumps(workflow_data.workflow_json),
+                workflow_id
+            )
+        )
+
+        return {
+            "success": True,
+            "message": "Workflow updated successfully"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/admin/workflows/{workflow_id}")
+async def delete_workflow(workflow_id: int):
+    """Delete a workflow (admin only)"""
+    try:
+        execute_query_dict(
+            "DELETE FROM workflows WHERE id = %s",
+            (workflow_id,)
+        )
+
+        return {
+            "success": True,
+            "message": "Workflow deleted successfully"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/admin/users")
+async def get_all_users_admin():
+    """Get all registered users (admin only)"""
+    try:
+        users = execute_query_dict(
+            """
+            SELECT
+                id,
+                email,
+                first_name,
+                last_name,
+                phone,
+                is_verified,
+                is_active,
+                is_admin,
+                created_at,
+                last_login,
+                login_count
+            FROM users
+            ORDER BY created_at DESC
+            """,
+            fetch_all=True
+        ) or []
+
+        return {
+            "success": True,
+            "users": [
+                {
+                    "id": str(u["id"]),
+                    "email": u["email"],
+                    "first_name": u.get("first_name"),
+                    "last_name": u.get("last_name"),
+                    "phone": u.get("phone"),
+                    "is_verified": u.get("is_verified", False),
+                    "is_active": u.get("is_active", True),
+                    "is_admin": u.get("is_admin", False),
+                    "created_at": str(u.get("created_at")),
+                    "last_login": str(u.get("last_login")) if u.get("last_login") else None,
+                    "login_count": u.get("login_count", 0)
+                }
+                for u in users
+            ]
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

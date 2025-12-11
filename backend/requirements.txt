@@ -6,10 +6,9 @@ pydantic[email]==2.9.2
 python-multipart==0.0.17
 
 # Authentication
-passlib[bcrypt]==1.7.4
+passlib==1.7.4
+bcrypt==4.0.1
 pyjwt==2.8.0
 
-# PostgreSQL Database (Neon) - Uncomment when ready to connect to database
-# psycopg2-binary==2.9.9
-# sqlalchemy==2.0.23
-# asyncpg==0.29.0
+# PostgreSQL Database (Neon)
+psycopg==3.2.3
