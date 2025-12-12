@@ -156,13 +156,17 @@ async def payment_webhook(request: Request):
 async def submit_custom_request(request_data: CustomWorkflowRequest):
     """Submit a custom workflow request"""
     try:
+        print(f"Received custom request from {request_data.email}")
+        print(f"Data: {request_data}")
+
         request_id = execute_query_dict(
             """
             INSERT INTO custom_requests (
-                name, email, phone, workflow_description,
-                use_case, budget, timeline, status, created_at, updated_at
+                name, email, phone, workflow_title,
+                description, use_case, budget_range, timeline,
+                status, created_at, updated_at
             ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, 'pending', NOW(), NOW()
+                %s, %s, %s, %s, %s, %s, %s, %s, 'pending', NOW(), NOW()
             )
             RETURNING id
             """,
@@ -170,19 +174,25 @@ async def submit_custom_request(request_data: CustomWorkflowRequest):
                 request_data.name,
                 request_data.email,
                 request_data.phone,
-                request_data.workflow_description,
+                'Custom Workflow Request',  # workflow_title
+                request_data.workflow_description,  # description
                 request_data.use_case,
-                request_data.budget,
+                request_data.budget,  # budget_range
                 request_data.timeline
             ),
             fetch_one=True
         )
 
+        print(f"Custom request created with ID: {request_id}")
+
         return {
             "success": True,
             "message": "Custom request submitted successfully",
-            "request_id": request_id["id"]
+            "request_id": request_id["id"] if request_id else None
         }
 
     except Exception as e:
+        print(f"Error submitting custom request: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
